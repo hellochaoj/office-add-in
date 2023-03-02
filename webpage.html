@@ -1,0 +1,131 @@
+<!-- Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT License. -->
+<!-- This file shows how to design a first-run page that provides a welcome screen to the user about the features of the add-in. -->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Contoso Task Pane Add-in</title>
+
+    <!-- Office JavaScript API -->
+    <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <!-- For more information on Fluent UI, visit https://developer.microsoft.com/fluentui#/. -->
+    <link rel="stylesheet" href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-core/11.0.0/css/fabric.min.css"/>
+
+    <!-- Template styles -->
+    <link href="taskpane.css" rel="stylesheet" type="text/css" />
+
+<!--
+
+    <script type="text/javascript" src="{{ url_for('static', filename='command.js') }}"></script>
+-->
+</head>
+
+<body class="ms-font-m ms-welcome ms-Fabric">
+    <noscript>
+        <div>You don't have JavaScript enabled. Good luck with that!</div>
+    </noscript>
+    <header class="ms-welcome__header ms-bgColor-neutralLighter">
+        <h1 class="ms-font-su">Improve Our ML Model Accuracy</h1>
+    </header>
+    <!--
+    <section id="sideload-msg" class="ms-welcome__main">
+        <h2 class="ms-font-xl">Critical severity issues present a direct and immediate risk to a broad array of our users or to a product itself.</h2>
+    </section>
+    -->
+    <main id="app-body" class="ms-welcome__main">
+        <h2 class="ms-font-xl">Message:</h2>
+        <p>Subject: <span style="color: red;" id="subject"></span></p>
+        <p>From: <span style="color: red;" id="from"></span></p>
+        <p>To: <span style="color: red;" id="to"></span></p>
+        <p>Item ID: <span style="color: red;" id="item"></span></p>
+
+    <dialog id="dialog" style="text-align: center;">
+      <p>Hi, your feedback's received.</p>
+      <button id="close">Okay</button>
+    </dialog>
+        <div>
+            <label for="assignees">Choose an assignee:</label>
+
+            <select name="assignees" id="assignee">
+              <option value="binxie">Bin Xie</option>
+              <option value="wenkun">Wen Kun</option>
+              <option value="chaojin">Chao Jin</option>
+            </select>
+        </div>
+        <h2 class="ms-font-xl">Put your feedback here:</h2>
+        <textarea id="w3review" name="w3review" rows="4" cols="40">
+        </textarea>
+        <p class="ms-font-l">&nbsp;</p>
+        <div role="button" id="div_run" class="ms-welcome__action ms-Button ms-Button--hero ms-font-xl">
+            <!--<a class="ms-Button-label"></a>-->
+            <button id="run">Submit</button>
+        </div>
+    </main>
+</body>
+<script>
+var dialog = document.getElementById('dialog');
+var showBtn = document.getElementById('run');
+var closeBtn = document.getElementById('close');
+
+// Setup an event listener for the show button.
+showBtn.addEventListener('click', function(e) {
+  e.preventDefault();
+
+  // Show the dialog.
+  dialog.show();
+});
+
+// Setup an event listener for the close button.
+closeBtn.addEventListener('click', function(e) {
+  e.preventDefault();
+  // document.getElementById("w3review").value = Office.context.mailbox;
+  // Close the dialog.
+  dialog.close();
+});
+
+Office.onReady(() => {
+  // If needed, Office.js is ready to be called
+  //document.getElementById("w3review").value = Office.context.mailbox.item;
+  document.getElementById("w3review").value = "xxxxxxxxxxxxxxxxxxx";
+  document.getElementById("item").innerHTML = Office.context.mailbox.item.itemId;
+  document.getElementById("subject").innerHTML = Office.context.mailbox.item.subject;
+    var requiredAttendees = Office.context.mailbox.item.from;
+    var str = requiredAttendees.displayName;
+
+  document.getElementById("from").innerHTML = str;
+  var ary = "";
+    const ll = Office.context.mailbox.item.to;
+  if (ll.length > 0) {
+      ll.forEach(function (obj) {
+        ary += obj.displayName + ",";
+        });
+
+  document.getElementById("to").innerHTML = ary.substring(0,ary.length-1);
+  }
+
+});
+
+$(document).ready(function(){
+  $("#close").click(function(){
+    $.get("https://cjin.pythonanywhere.com/fetch", function(data, status){
+        // $("#w3review").val(data)
+    });
+  });
+
+});
+
+if(Office.context.requirements.isSetSupported("Mailbox", "1.1")) {
+      $("#w3review").val("Outlook Mailbox is supported.");
+      console.log("Outlook Mailbox is supported.");
+  } else {
+      $("#w3review").val("Outlook Mailbox is NOT supported.")
+      console.log("Outlook Mailbox is NOT supported.");
+  }
+</script>
+
+</html>
